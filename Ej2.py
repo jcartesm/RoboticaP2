@@ -2,11 +2,13 @@ import numpy as np
 import sys, pygame
 from pygame.locals import *
 from random import randint
+import math as mt
 
 nEstados    = 13
 nIter       = 1000 # Iteracions
 Lamda       = 0.95
 e           = 0.0001
+e           = e*(1-Lamda)/2*Lamda
 k           = 1
 aDir        = ["N","S","E","O"] # Direccion 
 JOptimo     = [[0 for i in range(0,nEstados)]] # Jota Optimo (J*)
@@ -84,10 +86,37 @@ mTOeste = [[1.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 
            [0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.85 , 0.00 , 0.15 , 0.00],  # 11
            [0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.85 , 0.15],] # 12
 
+###############################################################################################################
+
+                            #               Acciones
+
+###############################################################################################################
+# Accion     N     S         E     O Estado
+ac1 =     [[0.0  , 0.0  ,  0.0  , 0.0 ],  # 0
+           [0.0  , 0.0  ,  0.0  , 0.0 ],  # 1
+           [0.0  , 0.0  , -1.0  , 0.0 ],  # 2
+           [0.0  , 0.0  ,  0.0  , 0.0 ],  # 3
+           [0.0  , 0.0  ,  0.0  , 0.0 ],  # 4
+           [0.0  , 0.0  ,  0.0  , 0.0 ],  # 5
+           [0.0  , 0.0  ,  0.0  , 0.0 ],  # 6
+           [0.0  , 0.0  ,  0.0  , 0.0 ],  # 7
+           [-1.0 , -1.0 ,  0.0  , 0.0 ],  # 8
+           [0.0  , -1.0 ,  0.0  , -1.0],  # 9
+           [0.0  , -1.0 ,  -1.0 , -1.0],  # 10
+           [0.0  , 0.0  ,  0.0  , 0.0 ],  # 11
+           [1.0  , 1.0  ,  1.0  , 0.0 ]]  # 12
 
 # RecompenEstadosa por estado
 # Estado s    0    1     2     3     4     5      6     7     8     9     10    11     12
-aRwd =     [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , 0.0 , -1.0 , 0.0 , +1.0 ]
+aRwd =    [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -4.0 , 0.0 , -1.0 , 0.0 , +1.0 ]
+acN =     [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , 0.0 , 0.0 , 0.0 , +1.0 ]
+acS =     [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , -1.0 , -1.0 , 0.0 , +1.0 ]
+acE =     [0.0 , 0.0 , -1.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , 0.0 , +1.0 ]
+acO =     [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , -1.0 , 0.0 , 0.0 ]
+
+
+def Norma(aA,aB):
+    return (max([abs(aA[i]-aB[i]) for i in range(0,nEstados)]))
 
 # Funcion Reward
 def Reward(Estado,Accion):
@@ -101,76 +130,52 @@ def Reward(Estado,Accion):
         return (sum([mTOeste[Estado][i] * aRwd[i] for i in range(0,nEstados)]))
 
 
-
-
-# while True:
-#     aE.append([0]*nEstados)
-#     for s in range(nEstados):
-#         for a in range(nA):
-#             aQ[s][a] = aRwd[s]+FD*sum([aT[a][s][i]*aE[nK-1][i] for i in range(nEstados)])
-#         aE[nK][s] = max(aQ[s])
-#         aP[0][s] = aQ[s].index(aE[nK][s])
-#     if not LNorma(aE[nK][:],aE[nK-1 ][:],nU,nEstados): break
-#     nK=nK+1
-
-# sL=[]
-# for i in range(nEstados):
-#     sL.append([i,aA[aP[0][i]]])
-
-# print(sL)
-
-def Norma(aA,aB):
-    return (max([abs(aA[i]-aB[i]) for i in range(0,nEstados)]))
-
 # LLenar matriz de recorrido con 0
 for i in range(0,nIter):
     aRec.append([0 for x in range(nEstados)])
-
+aRR = []
+maxRwd = 1
+Q = np.zeros((nEstados,4))
 
 # Value Iteration
 for i in range(1,nIter):
-    for s in range(0,nEstados):
-        for j in range(0,nEstados):
-            nV1 += mTNorte[s][j] *  aRec[i-1][j]  #mt.exp(-nDesc * aRwd[j])*aRec[i-1][j] # Norte
-            nV2 += mTSur[s][j]   *  aRec[i-1][j]  #mt.exp(-nDesc * aRwd[j])*aRec[i-1][j]   # Sur
-            nV3 += mTEste[s][j]  *  aRec[i-1][j]  #mt.exp(-nDesc * aRwd[j])*aRec[i-1][j]  # Este
-            nV4 += mTOeste[s][j] *  aRec[i-1][j]  #mt.exp(-nDesc * aRwd[j])*aRec[i-1][j] # Oeste
+    for s in range(nEstados):
+        for j in range(nEstados):
+            nV1 += mTNorte[s][j] *  aRec[i-1][j] #* mt.exp(-Lamda * acN[j])# * aRec[i-1][j] # Norte #aRec[i-1][j]
+            nV2 += mTSur[s][j]   *  aRec[i-1][j] #* mt.exp(-Lamda * acS[j])# * aRec[i-1][j]   # Sur #aRec[i-1][j]
+            nV3 += mTEste[s][j]  *  aRec[i-1][j] #* mt.exp(-Lamda * acE[j])# * aRec[i-1][j]  # Este #aRec[i-1][j]
+            nV4 += mTOeste[s][j] *  aRec[i-1][j] #* mt.exp(-Lamda * acO[j])# * aRec[i-1][j] # Oeste #aRec[i-1][j]
             
-        RecxAcc[0] = aRwd[s] + (nV1 * Lamda)  
-        RecxAcc[1] = aRwd[s] + (nV2 * Lamda)
-        RecxAcc[2] = aRwd[s] + (nV3 * Lamda) 
-        RecxAcc[3] = aRwd[s] + (nV4 * Lamda) 
-        
+        RecxAcc[0] = Reward(s,0) + (nV1 * Lamda)
+        RecxAcc[1] = Reward(s,1) + (nV2 * Lamda)
+        RecxAcc[2] = Reward(s,2) + (nV3 * Lamda)
+        RecxAcc[3] = Reward(s,3) + (nV4 * Lamda)
+
         aRec[i][s] = max(RecxAcc)
         
         nV1 = 0 ; nV2 = 0 
         nV3 = 0 ; nV4 = 0 
         
-        print(RecxAcc)
         nMax = max(RecxAcc)
         nPos = RecxAcc.index(nMax)
         aP[s] = aDir[nPos]
-
-    nError = Norma(aRec[i],aRec[i-1])
+    
+    nError = Norma(aRec[i][:],aRec[i-1][:])
     #print("Recorrido en i = ",aRec[i])
-    print(nError)
+    #print(nError)
     if nError < e: # almacenar el J* Optimo
         for k in range(0,nEstados):
             JOptimo[0][k] = aRec[i][k]
         print(" k optimo  = ", i , " , error => ", nError, " , J* Optimo => ",JOptimo)
         break
-print(aP)
 
 print('-'*87,
       '-'*87)
 for s in range(0,nEstados):
  print ("En S_"+str(s)," => ",aP[s])    
 print('='*87)
-        
 
-# Subproceso para sumar tuplas
-def SumT(a,b):
-    return tuple(sum(x) for x in zip(a, b))
+
 
 # # Creacion de Proceso principal de PyGame
 # def main():
