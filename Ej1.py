@@ -1,6 +1,7 @@
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import math as mt
 import pygame
+import numpy as np
 import random as ra
 
 nEstados    = 9
@@ -18,7 +19,10 @@ nMax        = 0 # Maximo
 nPos        = 0
 
 nV1 = 0 ; nV2 = 0 
-nV3 = 0 ; nV4 = 0 
+nV3 = 0 ; nV4 = 0
+
+arNorte = []; arSur = []; arEste = []; arOeste = []
+arNorteJ = []; arSurJ = []; arEsteJ = []; arOesteJ = []
 
 #Estado        0      1      2      3      4      5      6      7      8   Estado
 mTNorte=   [[1.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00],# 0
@@ -95,7 +99,6 @@ def Norma(aA,aB):
 for i in range(0,nIter):
     aRec.append([0 for x in range(nEstados)])
 
-
 # Value Iteration
 for i in range(1,nIter):
     for s in range(0,nEstados):
@@ -109,6 +112,11 @@ for i in range(1,nIter):
         RwdxAcc[1] = aRwd[s] + (nV2 * Lamda)
         RwdxAcc[2] = aRwd[s] + (nV3 * Lamda) 
         RwdxAcc[3] = aRwd[s] + (nV4 * Lamda) 
+
+        arNorte.append(RwdxAcc[0])
+        arSur.append(RwdxAcc[1])
+        arEste.append(RwdxAcc[2])
+        arOeste.append(RwdxAcc[3])
         
         aRec[i][s] = max(RwdxAcc)
         
@@ -128,7 +136,6 @@ for i in range(1,nIter):
             JOptimo[0][k] = aRec[i][k]
         print(" k optimo  = ", i , " , error => ", nError, " , J* Optimo => ",JOptimo)
         break
-print(aP)
 # Calculo de la Mejor Accion a tomar en los Estados S(i) segun JOptimo (J*).-
 for s in range(0,nEstados):
     for j in range(0,nEstados):
@@ -141,6 +148,11 @@ for s in range(0,nEstados):
     RwdxAcc[1] = aRwd[s] + (nV2 * Lamda) # Accion 2-Sur
     RwdxAcc[2] = aRwd[s] + (nV3 * Lamda) # Accion 3-Este
     RwdxAcc[3] = aRwd[s] + (nV4 * Lamda) # Accion 4-Oeste
+
+    arNorteJ.append(RwdxAcc[0])
+    arSurJ.append(RwdxAcc[1])
+    arEsteJ.append(RwdxAcc[2])
+    arOesteJ.append(RwdxAcc[3])
 
     nV1 = 0; nV2 = 0; nV3 = 0; nV4 = 0 
     #print 'Estado[%d] Reward Accion [N]: %0.3f Reward Accion [S]: %0.3f Reward Accion [E]: %0.3f Reward Accion [O]: %0.3f' %(s,nA[0],nA[1],nA[2],nA[3])   
@@ -155,6 +167,74 @@ print('-'*87,
 for s in range(0,nEstados):
  print ("En S_"+str(s)," => ",aP[s])    
 print('='*87)
+
+
+######################################################################################
+
+#                              Graficas Matplotlib
+
+######################################################################################
+
+
+fig_E, ax_Vs = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
+plt.suptitle("Valores de V(s) por accion")
+
+fig_V, ax_VsJ = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
+plt.suptitle("Valores de V(s) por accion con JOptimo")
+
+x = np.arange(0,3087)
+x_2 = np.arange(0,9)
+
+ax_Vs[0, 0].plot(x,arNorte,'b',linewidth = 2)
+ax_Vs[0, 0].set_xlabel('t')
+ax_Vs[0, 0].set_ylabel('valores')
+ax_Vs[0, 0].set_title("A Norte")
+ax_Vs[0, 0].grid()
+
+ax_Vs[0, 1].plot(x,arSur,'r',linewidth = 2)
+ax_Vs[0, 1].set_xlabel('t')
+ax_Vs[0, 1].set_ylabel('valores')
+ax_Vs[0, 1].set_title("A Sur")
+ax_Vs[0, 1].grid()
+
+ax_Vs[1, 0].plot(x,arEste,'y',linewidth = 2)
+ax_Vs[1, 0].set_xlabel('t')
+ax_Vs[1, 0].set_ylabel('valores')
+ax_Vs[1, 0].set_title("A Este")
+ax_Vs[1, 0].grid()
+
+ax_Vs[1, 1].plot(x,arOeste,'g',linewidth = 2)
+ax_Vs[1, 1].set_xlabel('t')
+ax_Vs[1, 1].set_ylabel('valores')
+ax_Vs[1, 1].set_title("A Oeste")
+ax_Vs[1, 1].grid()
+
+ax_VsJ[0, 0].plot(x_2,arNorteJ,'r',linewidth = 2)
+ax_VsJ[0, 0].set_xlabel('t')
+ax_VsJ[0, 0].set_ylabel('valores')
+ax_VsJ[0, 0].set_title("A Norte")
+ax_VsJ[0, 0].grid()
+
+ax_VsJ[0, 1].plot(x_2,arSurJ,'b',linewidth = 2)
+ax_VsJ[0, 1].set_xlabel('t')
+ax_VsJ[0, 1].set_ylabel('valores')
+ax_VsJ[0, 1].set_title("A Sur")
+ax_VsJ[0, 1].grid()
+
+ax_VsJ[1, 0].plot(x_2,arEsteJ,'y',linewidth = 2)
+ax_VsJ[1, 0].set_xlabel('t')
+ax_VsJ[1, 0].set_ylabel('valores')
+ax_VsJ[1, 0].set_title("A Este")
+ax_VsJ[1, 0].grid()
+
+ax_VsJ[1, 1].plot(x_2,arOesteJ,'g',linewidth = 2)
+ax_VsJ[1, 1].set_xlabel('t')
+ax_VsJ[1, 1].set_ylabel('valores')
+ax_VsJ[1, 1].set_title("A Oeste")
+ax_VsJ[1, 1].grid()
+
+
+plt.show()
 
 ######################################################################################
 
@@ -260,3 +340,10 @@ while is_running:
             is_running = False
 
 pygame.quit()
+
+
+
+
+
+
+
