@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import sys, pygame
 from pygame.locals import *
 from random import randint
@@ -23,6 +24,7 @@ nPos        = 0
 nV1 = 0 ; nV2 = 0 
 nV3 = 0 ; nV4 = 0 
 
+arNorte = []; arSur = []; arEste = []; arOeste = []
                                      
 #            0      1      2      3      4      5      6      7      8      9      10     11     12  Estado
 mTNorte = [[1.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00],  # 0
@@ -138,7 +140,7 @@ aRR = []
 maxRwd = 1
 Q = np.zeros((nEstados,4))
 
-# Value Iteration
+# arE = []
 for i in range(1,nIter):
     for s in range(nEstados):
         for j in range(nEstados):
@@ -152,6 +154,11 @@ for i in range(1,nIter):
         RecxAcc[2] = Reward(s,2) + (nV3 * Lamda)
         RecxAcc[3] = Reward(s,3) + (nV4 * Lamda)
 
+        arNorte.append(RecxAcc[0])
+        arSur.append(RecxAcc[1])
+        arEste.append(RecxAcc[2])
+        arOeste.append(RecxAcc[3])
+
         aRec[i][s] = max(RecxAcc)
         
         nV1 = 0 ; nV2 = 0 
@@ -162,6 +169,7 @@ for i in range(1,nIter):
         aP[s] = aDir[nPos]
     
     nError = Norma(aRec[i][:],aRec[i-1][:])
+    # arE.append(nError)
     #print("Recorrido en i = ",aRec[i])
     #print(nError)
     if nError < e: # almacenar el J* Optimo
@@ -176,6 +184,50 @@ for s in range(0,nEstados):
  print ("En S_"+str(s)," => ",aP[s])    
 print('='*87)
 
+
+######################################################################################
+
+#                              Graficas Matplotlib
+
+######################################################################################
+# print("Error = " , len(arE))
+
+# error1 = np.arange(0,254)
+
+# plt.plot(error1,arE)
+
+fig_E, ax_Vs = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
+plt.suptitle("Valores de Q(s,a) por accion")
+
+
+x = np.arange(0,3302)
+
+ax_Vs[0, 0].plot(x,arNorte,'b',linewidth = 2)
+ax_Vs[0, 0].set_xlabel('t')
+ax_Vs[0, 0].set_ylabel('valores')
+ax_Vs[0, 0].set_title("A Norte")
+ax_Vs[0, 0].grid()
+
+ax_Vs[0, 1].plot(x,arSur,'r',linewidth = 2)
+ax_Vs[0, 1].set_xlabel('t')
+ax_Vs[0, 1].set_ylabel('valores')
+ax_Vs[0, 1].set_title("A Sur")
+ax_Vs[0, 1].grid()
+
+ax_Vs[1, 0].plot(x,arEste,'y',linewidth = 2)
+ax_Vs[1, 0].set_xlabel('t')
+ax_Vs[1, 0].set_ylabel('valores')
+ax_Vs[1, 0].set_title("A Este")
+ax_Vs[1, 0].grid()
+
+ax_Vs[1, 1].plot(x,arOeste,'g',linewidth = 2)
+ax_Vs[1, 1].set_xlabel('t')
+ax_Vs[1, 1].set_ylabel('valores')
+ax_Vs[1, 1].set_title("A Oeste")
+ax_Vs[1, 1].grid()
+
+plt.show()
+
 ######################################################################################
 
 #                              PYGAME SIMULATION
@@ -184,7 +236,7 @@ print('='*87)
 
 pygame.init()
 ventana = pygame.display.set_mode((875, 500))
-pygame.display.set_caption('Value Iteration')
+pygame.display.set_caption('QValue Iteration')
 WHITE = (255, 255, 255)
 ventana.fill(WHITE)
 fondo = pygame.image.load("img/fondo.png")
