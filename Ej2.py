@@ -3,6 +3,7 @@ import sys, pygame
 from pygame.locals import *
 from random import randint
 import math as mt
+import random as ra
 
 nEstados    = 13
 nIter       = 1000 # Iteracions
@@ -175,128 +176,113 @@ for s in range(0,nEstados):
  print ("En S_"+str(s)," => ",aP[s])    
 print('='*87)
 
+######################################################################################
 
+#                              PYGAME SIMULATION
 
-# # Creacion de Proceso principal de PyGame
-# def main():
-#     # Variables iniciales
-#     Ancho = 160
-#     Alto  = 240
-#     # Colores Iniciales
-#     CCeleste = (153,217,234)
-#     CAzul = (63,72,204)
-#     CRojo = (237,28,36)
-#     CNegro = (0,0,0)
+######################################################################################
 
-#     # Carga de assets
-#     # Se carga el icono de flecha, los iconos de robots
-#     # y se redimenEstadosionan
-#     Flecha = pygame.image.load("assets/arrow.png")
-#     Flecha = pygame.tranEstadosform.scale(Flecha, (38, 38))
-#     Robot = pygame.image.load("assets/robot.png")
-#     Robot = pygame.tranEstadosform.scale(Robot, (38, 38))
-#     RobotAnt = pygame.image.load("assets/robot2.png")
-#     RobotAnt = pygame.tranEstadosform.scale(RobotAnt, (38, 38))
+pygame.init()
+ventana = pygame.display.set_mode((875, 500))
+pygame.display.set_caption('Value Iteration')
+WHITE = (255, 255, 255)
+ventana.fill(WHITE)
+fondo = pygame.image.load("img/fondo.png")
+fondo = pygame.transform.scale(fondo, [875, 500])
+ventana.blit(fondo,[0,0])
 
-#     # Creacion de Objeto Pantalla
-#     pantalla = pygame.display.set_mode((Ancho,Alto))
-#     # Fuentes de Texto
-#     pygame.font.init()
-#     myfont = pygame.font.SysFont('Romand', 10)
-#     # Titulo
-#     pygame.display.set_caption("Laboratorio 3")
-#     # Relleno Pantalla
-#     pantalla.fill(CNegro)
+pygame.display.flip()
 
+# Cargado de Imagenes a ocupar
+robot = pygame.image.load("img/robot.png")
+robot = pygame.transform.scale(robot, [50, 50])
 
-#     # Creacion de arreglos con posiciones de lineas
-#     mPos = []
-#     for y in range(0,201,40):
-#         for x in range(0,121,40):
-#             mPos.append([x,y])
+casilla = pygame.image.load("img/normal.png")
+casilla = pygame.transform.scale(casilla, [125, 125])
 
-#     # Con la cuadricula generada se dibujan los cuadrados
-#     # Si corresponden a ciertas ubicaciones detalladas en el mapa
-#     # se pintan del color respectivo
-#     for Data in mPos:
-#         if Data==[80,0] or Data==[80,80] or Data==[0,120]:
-#             pygame.draw.rect(pantalla, CRojo ,[Data[0],Data[1],38,38],0)
-#         elif Data==[120,0]:
-#             pygame.draw.rect(pantalla, CAzul ,[Data[0],Data[1],38,38],0)
-#         else:
-#             pygame.draw.rect(pantalla, CCeleste ,[Data[0],Data[1],38,38],0)
+casilla_win = pygame.image.load("img/win.png")
+casilla_win = pygame.transform.scale(casilla_win, [125, 125])
+
+casilla_bad = pygame.image.load("img/lose.png")
+casilla_bad = pygame.transform.scale(casilla_bad, [125, 125])
+
+def RestFondo():
+    ventana.fill(WHITE)
+    ventana.blit(fondo,[0,0])
+    for i in range(0,7):  
+        if i == 2:
+            ventana.blit(casilla,[125*i,0])
+            ventana.blit(casilla,[125*i,125])
+        if i == 3:
+            ventana.blit(casilla,[125*i,0])
+        if i == 4:
+            ventana.blit(casilla_bad,[125*i,375])
+            ventana.blit(casilla_bad,[125*(i-1),250])
+            ventana.blit(casilla,[125*i,0])
+            ventana.blit(casilla,[125*i,125])  
+        if i == 6:
+            ventana.blit(casilla_win,[125*i,250])
+        else:
+            ventana.blit(casilla,[125*i,250])
+
+def Mover(posActual,mov):
+    x = posActual[0]
+    y = posActual[1]
+    if mov == "N":
+        for i in range(25):
+            if x > 784:
+                return [x,y]
+            y = y - 5
+            RestFondo()
+            ventana.blit(robot,[x,y])
+            pygame.display.update()                            
+            pygame.time.delay(40)
+        return [x,y]
+    if mov == "S":
+        for i in range(25):
+            y = y + 5
+            #if y > 210:
+            #    return [x,y-5]
+            RestFondo()
+            ventana.blit(robot,[x,y])
+            pygame.display.update()                            
+            pygame.time.delay(40)
+        return [x,y]
+    if mov == "E":
+        for i in range(25):
+            x = x + 5
+            RestFondo()
+            ventana.blit(robot,[x,y])
+            pygame.display.update()                            
+            pygame.time.delay(40)
+        return [x,y]
+    if mov == "O":
+        for i in range(25):
+            x = x - 5
+            RestFondo()
+            ventana.blit(robot,[x,y])
+            pygame.display.update()                            
+            pygame.time.delay(40)
+        return [x,y]
     
-#     # Se genera el camino con las politicas
-#     for Data in sL:
-#         # Angulo de giro
-#         A=0
-#         # Posicion actual
-#         X=mPos[Data[0]][0]
-#         Y=mPos[Data[0]][1]
-#         # Se actualiza el angulo segun lo que indica la politica
-#         if Data[1]=='N':
-#             A=90
-#         elif Data[1]=='E':
-#             A=0
-#         elif Data[1]=='S':
-#             A=-90
-#         elif Data[1]=='O':
-#             A=-180
-#         # Se gira la flecha y se muestra en la posicion del nuevo centro
-#         FlechaR=pygame.tranEstadosform.rotate(Flecha,A)
-#         FlechaP=FlechaR.get_rect(center = Flecha.get_rect(topleft = (X,Y)).center)
-#         # Se escribe en el cuadrado la posicion en el mapa
-#         Texto=myfont.render(str(Data[0]), False, (0, 0, 0))
-#         # Se genera un nuevo blit con los objetos
-#         pantalla.blit(FlechaR,FlechaP)
-#         pantalla.blit(Texto,(X,Y))
+RestFondo()
 
-#     # Se genera posicion aleatoria del robot
-#     RS=randint(0,23)
-#     # Se almacena la posicion en relacion al dato aleatorio
-#     RoboPos=[mPos[RS],RS]
-#     # Se muestra en pantalla
-#     pantalla.blit(Robot,RoboPos[0])
-#     pygame.display.update()
-#     # Inicio ciclo del programa
-#     while True:
-#         # Retraso entre cada actualizacion
-#         pygame.time.delay(500)
-#         # Si el robot aun no llega a la meta
-#         if RoboPos[1]!=3:
-#             # Se suma la distancia de un cuadrado dependiendo
-#             # de lo que indica la politica
-#             if sL[RoboPos[1]][1]=='N':
-#                 X=0
-#                 Y=-40
-#             elif sL[RoboPos[1]][1]=='E':
-#                 X=40
-#                 Y=0
-#             elif sL[RoboPos[1]][1]=='S':
-#                 X=0
-#                 Y=40
-#             elif sL[RoboPos[1]][1]=='O':
-#                 X=-40
-#                 Y=0
-#             # Se marca la posicion antigua
-#             pantalla.blit(RobotAnt,RoboPos[0])
-#             # Se genera la nueva posicion
-#             RoboPos[0]=SumT(RoboPos[0],(X,Y))
-#             # Se busca el estado que coincida con la nueva posicion generada
-#             # y se almacena dicho estado
-#             for i in range(0,len(mPos)):
-#                 if mPos[i][0]==RoboPos[0][0] and mPos[i][1]==RoboPos[0][1]:
-#                     RoboPos[1]=i
-#                     break
-#             # Se genera la nueva posicion en pantalla
-#             pantalla.blit(Robot,RoboPos[0])
-#             # Se actualiza la pantalla
-#             pygame.display.update()
-#         for eventos in pygame.event.get():
-#             if eventos.type == QUIT:
-#                 sys.exit(0)
-#     return 
- 
-# if __name__ == '__main__':
-#     pygame.init()
-#     main()
+# Posicion inicial aleatoria del robot
+Estado_Robot = [[35,285],[160,285],[285,285],[285,160],[285,35],[410,35],
+                [535,35],[535,160],[410,285],[535,285],[535,410],[660,285],[785,285]]
+indexIni =  ra.randint(0,3)
+posRobot = Estado_Robot[indexIni]
+ventana.blit(robot,[posRobot[0],posRobot[1]])
+
+    
+pygame.display.update()
+
+is_running = True
+while is_running:
+    posRobot = Mover(posRobot,aP[indexIni])
+    indexIni = Estado_Robot.index(posRobot)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            is_running = False
+
+pygame.quit()
