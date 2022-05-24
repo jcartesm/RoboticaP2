@@ -24,7 +24,7 @@ nPos        = 0
 nV1 = 0 ; nV2 = 0 
 nV3 = 0 ; nV4 = 0 
 
-arNorte = []; arSur = []; arEste = []; arOeste = []
+arNorte = []; arSur = []; arEste = []; arOeste = [] # Arreglos para luego graficar
                                      
 #            0      1      2      3      4      5      6      7      8      9      10     11     12  Estado
 mTNorte = [[1.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00],  # 0
@@ -121,7 +121,15 @@ acO =     [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , -1.0 , 0
 def Norma(aA,aB):
     return (max([abs(aA[i]-aB[i]) for i in range(0,nEstados)]))
 
-# Funcion Reward
+# FUNCTION REWARD
+#
+# This function calculates the reward being in a state and having
+# applied a specific action:
+# 
+#   - Input:
+#           - state
+#           - action
+#
 def Reward(Estado,Accion):
     if Accion == 0: # Norte
         return (sum([mTNorte[Estado][i] * aRwd[i] for i in range(0,nEstados)]))
@@ -136,11 +144,7 @@ def Reward(Estado,Accion):
 # LLenar matriz de recorrido con 0
 for i in range(0,nIter):
     aRec.append([0 for x in range(nEstados)])
-aRR = []
-maxRwd = 1
-Q = np.zeros((nEstados,4))
 
-# arE = []
 for i in range(1,nIter):
     for s in range(nEstados):
         for j in range(nEstados):
@@ -169,9 +173,7 @@ for i in range(1,nIter):
         aP[s] = aDir[nPos]
     
     nError = Norma(aRec[i][:],aRec[i-1][:])
-    # arE.append(nError)
-    #print("Recorrido en i = ",aRec[i])
-    #print(nError)
+    
     if nError < e: # almacenar el J* Optimo
         for k in range(0,nEstados):
             JOptimo[0][k] = aRec[i][k]
@@ -190,11 +192,6 @@ print('='*87)
 #                              Graficas Matplotlib
 
 ######################################################################################
-# print("Error = " , len(arE))
-
-# error1 = np.arange(0,254)
-
-# plt.plot(error1,arE)
 
 fig_E, ax_Vs = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
 plt.suptitle("Valores de Q(s,a) por accion")

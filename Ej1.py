@@ -21,8 +21,8 @@ nPos        = 0
 nV1 = 0 ; nV2 = 0 
 nV3 = 0 ; nV4 = 0
 
-arNorte = []; arSur = []; arEste = []; arOeste = []
-arNorteJ = []; arSurJ = []; arEsteJ = []; arOesteJ = []
+arNorte = []; arSur = []; arEste = []; arOeste = [] # arreglos para graficas con valores de V(s)
+arNorteJ = []; arSurJ = []; arEsteJ = []; arOesteJ = [] # arreglos para graficos con valores de V(s) y JOptimo
 
 #Estado        0      1      2      3      4      5      6      7      8   Estado
 mTNorte=   [[1.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00],# 0
@@ -72,25 +72,6 @@ mTOeste=   [[1.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00],# 0
 # Estado s    0    1     2      3     4     5      6     7     8
 aRwd =     [1.0 , 0.0 , 0.0 , -1.0 , 0.0 , 0.0 , -1.0 , 0.0 , 1.0 ]
 
-# Funcion Reward
-def Reward(Estado,Accion):
-    if Accion == 0: # Norte
-        return (sum([mTNorte[Estado][i] * aRwd[i] for i in range(0,nEstados)]))
-    if Accion == 1: # Sur
-        return (sum([mTSur[Estado][i] * aRwd[i] for i in range(0,nEstados)]))
-    if Accion == 2: # Este
-        return (sum([mTEste[Estado][i] * aRwd[i] for i in range(0,nEstados)]))
-    if Accion == 3: # Oeste
-        return (sum([mTOeste[Estado][i] * aRwd[i] for i in range(0,nEstados)]))
-
-
-#Comprobar que la suma de transicion de 1
-# for i in mTranOeste:
-#      porcentaje = 0.0
-#      for k in i:
-#          porcentaje += k
-#      print(porcentaje)
-
 # Norma
 def Norma(aA,aB):
     return (max([abs(aA[i]-aB[i]) for i in range(0,nEstados)]))
@@ -107,7 +88,7 @@ for i in range(1,nIter):
             nV2 += mTSur[s][j]   *  aRec[i-1][j]  #mt.exp(-nDesc * aRwd[j])*aRec[i-1][j]   # Sur
             nV3 += mTEste[s][j]  *  aRec[i-1][j]  #mt.exp(-nDesc * aRwd[j])*aRec[i-1][j]  # Este
             nV4 += mTOeste[s][j] *  aRec[i-1][j]  #mt.exp(-nDesc * aRwd[j])*aRec[i-1][j] # Oeste
-            
+
         RwdxAcc[0] = aRwd[s] + (nV1 * Lamda)  
         RwdxAcc[1] = aRwd[s] + (nV2 * Lamda)
         RwdxAcc[2] = aRwd[s] + (nV3 * Lamda) 
@@ -123,19 +104,18 @@ for i in range(1,nIter):
         nV1 = 0 ; nV2 = 0 
         nV3 = 0 ; nV4 = 0 
         
-        #print(RwdxAcc)
         nMax = max(RwdxAcc)
         nPos = RwdxAcc.index(nMax)
         aP[s] = aDir[nPos]
 
     nError = Norma(aRec[i],aRec[i-1])
-    #print("Recorrido en i = ",aRec[i])
-    #print(nError)
+
     if nError < e: # almacenar el J* Optimo
         for k in range(0,nEstados):
             JOptimo[0][k] = aRec[i][k]
         print(" k optimo  = ", i , " , error => ", nError, " , J* Optimo => ",JOptimo)
         break
+
 # Calculo de la Mejor Accion a tomar en los Estados S(i) segun JOptimo (J*).-
 for s in range(0,nEstados):
     for j in range(0,nEstados):
@@ -155,8 +135,7 @@ for s in range(0,nEstados):
     arOesteJ.append(RwdxAcc[3])
 
     nV1 = 0; nV2 = 0; nV3 = 0; nV4 = 0 
-    #print 'Estado[%d] Reward Accion [N]: %0.3f Reward Accion [S]: %0.3f Reward Accion [E]: %0.3f Reward Accion [O]: %0.3f' %(s,nA[0],nA[1],nA[2],nA[3])   
-
+    
     nMax = max(RwdxAcc)
     nPos = RwdxAcc.index(nMax)
     aP[s] = aDir[nPos]
