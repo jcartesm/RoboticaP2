@@ -111,7 +111,7 @@ ac1 =     [[0.0  , 0.0  ,  0.0  , 0.0 ],  # 0
 
 # RecompenEstadosa por estado
 # Estado s    0    1     2     3     4     5      6     7     8     9     10    11     12
-aRwd =    [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , 0.0 , -1.0 , 0.0 , +1.0 ]
+aRwd =    [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -4.0 , 0.0 , -1.0 , 0.0 , +1.0 ]
 acN =     [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , 0.0 , 0.0 , 0.0 , +1.0 ]
 acS =     [0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , -1.0 , -1.0 , 0.0 , +1.0 ]
 acE =     [0.0 , 0.0 , -1.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , 0.0 , +1.0 ]
@@ -315,6 +315,7 @@ def Mover(posActual,mov):
         return [x,y]
     
 RestFondo()
+# Musica de fondo
 pygame.mixer.music.load('song/fondo.mp3')
 pygame.mixer.music.play(-1)
 # Posicion inicial aleatoria del robot
@@ -323,7 +324,6 @@ Estado_Robot = [[35,285],[160,285],[285,285],[285,160],[285,35],[410,35],
 indexIni =  0#ra.randint(0,3)
 posRobot = Estado_Robot[indexIni]
 ventana.blit(robot,[posRobot[0],posRobot[1]])
-
     
 pygame.display.update()
 end = 0
@@ -332,14 +332,12 @@ while is_running:
     posRobot = Mover(posRobot,aP[indexIni])
     indexIni = Estado_Robot.index(posRobot)
     if indexIni == 12:
+        # Musica de llegada
         pygame.mixer.music.load('song/end.mp3')
         pygame.mixer.music.play(-1)
-        indexIni = 13
-    if indexIni == 13:
-        while True:
-            pygame.time.delay(12000)
-            is_running = False
-            pygame.quit()
+        pygame.time.delay(12000)
+        pygame.quit()
+        is_running = False         
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             is_running = False

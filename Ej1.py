@@ -8,7 +8,6 @@ nEstados    = 9
 nIter       = 1000 # Iteracions
 Lamda       = 0.98
 e           = 0.001
-k           = 1
 aDir        = ["N","S","E","O"] # Direccion 
 JOptimo     = [[0 for i in range(0,nEstados)]] # Jota Optimo (J*)
 aP          = ["?" for i in range(0,nEstados)] # Acciones a tomar en estado
@@ -300,7 +299,9 @@ def Mover(posActual,mov):
         return [x,y]
     
 RestFondo()
-
+# Musica de fondo
+pygame.mixer.music.load('song/fondo.mp3')
+pygame.mixer.music.play(-1)
 # Posicion inicial aleatoria del robot
 Estado_Robot = [[35,210],[160,210],[285,210],[285,85],[410,210],[535,210],[535,335],[660,210],[785,210]]
 indexIni =  ra.randint(2,6)
@@ -314,6 +315,13 @@ is_running = True
 while is_running:
     posRobot = Mover(posRobot,aP[indexIni])
     indexIni = Estado_Robot.index(posRobot)
+    if indexIni == 8 or indexIni == 0:
+        # Musica de llegada
+        pygame.mixer.music.load('song/end.mp3')
+        pygame.mixer.music.play(-1)
+        pygame.time.delay(12000)
+        pygame.quit()
+        is_running = False 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             is_running = False
