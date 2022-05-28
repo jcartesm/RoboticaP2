@@ -12,14 +12,14 @@
 
 ## 💻 Pré-requisitos
 
-Antes de começar, verifique se você atendeu aos seguintes requisitos:
+Antes de comensazar, verifique que tiene los siguientes requisitos:
 <!---Estes são apenas requisitos de exemplo. Adicionar, duplicar ou remover conforme necessário--->
-* Você instalou a versão mais recente de `<linguagem / dependência / requeridos>`
+* Usted debe instalar o tener la version de `<python 3.8.X / pygame, matplotlib, numpy`
 
 
 ## 🤝 Colaboradores
 
-Agradecemos às seguintes pessoas que contribuíram para este projeto:
+Agradecemos a los siguientes colaboradores:
 
 <table>
   <tr>
